@@ -25,7 +25,9 @@ The task is to build a QA pipeline that integrates security checks across the de
 ## 3. Solution Design (Optimal Approach)
 The implemented pipeline ensures that security checks run automatically on every pull request and push to the main branch. It uses ephemeral environments for dynamic testing, aggregates results from all tools, and enforces quality gates to prevent insecure code from merging.
 
-**## 4. Architecture Diagram
+---
+
+## 4. Architecture Diagram
 
 Developer → Pushes code or creates PR → GitHub Repository
 GitHub Repository → Triggers GitHub Actions CI Pipeline
