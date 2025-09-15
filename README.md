@@ -32,16 +32,23 @@ GitHub Repository → Triggers GitHub Actions CI Pipeline
 
 Inside the CI Pipeline:
 Semgrep SAST → Runs static application security testing
+
 Secrets Scan → Detects hardcoded secrets
+
 Checkov IaC Scan → Scans Infrastructure-as-Code for misconfigurations
+
 Build Container Image → Builds Docker image
+
 Image is scanned by Trivy for vulnerabilities
+
 
 Then:
 Ephemeral Review App is created → OWASP ZAP DAST performs dynamic security testing
 
 Reports:
+
 All results (SAST, IaC, Image Scan, DAST) are sent to a Report Aggregator
+
 Aggregator posts a PR Comment + Summary
 
 Quality Gate / Policy-as-Code checks if build passes or fails
@@ -71,13 +78,21 @@ Provides a standardized format for security findings, allowing results from tool
 ## 6. Pipeline Workflow
 
 The GitHub Actions pipeline executes the following stages:
+
 Checkout – fetches source code.
+
 SAST (Semgrep) – scans for insecure code patterns.
+
 Secrets Scan (detect-secrets) – checks for exposed credentials.
+
 IaC Scan (Checkov) – validates security of infrastructure-as-code.
+
 Build & Image Scan (Trivy) – builds Docker image and scans for vulnerabilities.
+
 Deploy Ephemeral App – launches a temporary environment for testing.
+
 DAST (OWASP ZAP) – runs penetration tests on the deployed app.
+
 Aggregator & Reporting – consolidates findings, prioritizes issues, and posts results to the pull request.
 
 ## 7. Running the Pipeline
@@ -86,18 +101,19 @@ Locally
 Install the tools and run scans manually:
 
 pip install semgrep checkov detect-secrets
+
 brew install aquasecurity/trivy
 
-# Run SAST
+### Run SAST
 semgrep ci --sarif > semgrep.sarif
 
-# Run IaC scan
+### Run IaC scan
 checkov -d . -o sarif > checkov.sarif
 
-# Run container scan
+### Run container scan
 trivy fs --format sarif --output trivy.sarif .
 
-# Run secrets detection
+### Run secrets detection
 detect-secrets scan > secrets.baseline
 
 In GitHub Actions CI/CD
