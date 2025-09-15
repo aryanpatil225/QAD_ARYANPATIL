@@ -1,1 +1,63 @@
 
+WORKFLOW: Continuous Security Testing Pipeline
+
+TRIGGERS:
+  - On pull request events (opened, updated, reopened)
+  - On push to 'main' branch
+
+PIPELINE STEPS:
+
+1. CHECKOUT CODE
+   - Action: Fetch source code from GitHub repository
+
+2. STATIC APPLICATION SECURITY TESTING (SAST)
+   - Tool: Semgrep
+   - Action: Scan source code for insecure coding patterns
+   - Output: SARIF report
+
+3. SECRETS DETECTION
+   - Tool: detect-secrets
+   - Action: Scan repository for hardcoded credentials (API keys, passwords)
+   - Output: Baseline file + report
+
+4. INFRASTRUCTURE-AS-CODE SCAN
+   - Tool: Checkov
+   - Action: Analyze Terraform/Kubernetes/CloudFormation for misconfigurations
+   - Output: SARIF report
+
+5. BUILD AND IMAGE SCAN
+   - Action: Build Docker image of the application
+   - Tool: Trivy
+   - Action: Scan image and dependencies for known CVEs
+   - Output: SARIF report
+
+6. DEPLOY EPHEMERAL REVIEW APP
+   - Action: Deploy temporary environment (using docker-compose or similar)
+   - Action: Wait for service to be ready
+
+7. DYNAMIC APPLICATION SECURITY TESTING (DAST)
+   - Tool: OWASP ZAP
+   - Action: Run penetration testing against ephemeral environment
+   - Output: JSON/HTML report
+
+8. AGGREGATION AND PRIORITIZATION
+   - Action: Collect findings from SAST, Secrets, IaC, Image Scan, DAST
+   - Algorithm:
+       For each finding:
+         - Normalize severity (Critical, High, Medium, Low)
+         - Add weight based on CVSS score
+         - Add weight if public exploit exists
+         - Add weight if CVE has been unpatched for a long time
+         - Calculate overall risk score (0–10)
+       Categorize findings into Critical, High, Medium, Low
+   - Output: Prioritized consolidated report
+
+9. REPORTING
+   - Upload SARIF results to GitHub Security tab
+   - Post summarized report as a comment on the Pull Request
+   - Apply quality gates:
+       - Block merge if Critical issues exist
+       - Require remediation plan for High
+       - Log Medium/Low but allow merge
+
+END WORKFLOW
