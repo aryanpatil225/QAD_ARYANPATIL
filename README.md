@@ -25,7 +25,7 @@ The task is to build a QA pipeline that integrates security checks across the de
 ## 3. Solution Design (Optimal Approach)
 The implemented pipeline ensures that security checks run automatically on every pull request and push to the main branch. It uses ephemeral environments for dynamic testing, aggregates results from all tools, and enforces quality gates to prevent insecure code from merging.
 
-## 4. Architecture Diagram
+**## 4. Architecture Diagram
 
 Developer → Pushes code or creates PR → GitHub Repository
 GitHub Repository → Triggers GitHub Actions CI Pipeline
@@ -53,7 +53,28 @@ Aggregator posts a PR Comment + Summary
 
 Quality Gate / Policy-as-Code checks if build passes or fails
 
-Based on result → Block or Allow merge in GitHub
+Based on result → Block or Allow merge in GitHub**flowchart TD
+    Dev[Developer] -->|Push / PR| GitHub[GitHub Repository]
+    GitHub --> Actions[GitHub Actions CI Pipeline]
+
+    Actions --> SAST[Semgrep SAST]
+    Actions --> Secrets[Secrets Scan]
+    Actions --> IaC[Checkov IaC Scan]
+    Actions --> Build[Build Container Image]
+
+    Build --> ImageScan[Trivy Image Scan]
+
+    Actions --> DeployEP[Ephemeral Review App]
+    DeployEP --> DAST[OWASP ZAP DAST]
+
+    SAST -->|SARIF| Aggregator[Report Aggregator]
+    IaC -->|SARIF| Aggregator
+    ImageScan -->|SARIF| Aggregator
+    DAST -->|JSON| Aggregator
+
+    Aggregator --> PRComment[PR Comment + Summary]
+    Aggregator --> Policy[Quality Gate / Policy-as-Code]
+---
 
 ## 5. Tools and Their Purpose
 
@@ -75,6 +96,9 @@ Performs automated penetration testing by simulating runtime attacks on a deploy
 -GitHub SARIF Upload
 Provides a standardized format for security findings, allowing results from tools to be viewed directly in GitHub’s Security tab.
 
+
+---
+
 ## 6. Pipeline Workflow
 
 The GitHub Actions pipeline executes the following stages:
@@ -94,6 +118,9 @@ Deploy Ephemeral App – launches a temporary environment for testing.
 DAST (OWASP ZAP) – runs penetration tests on the deployed app.
 
 Aggregator & Reporting – consolidates findings, prioritizes issues, and posts results to the pull request.
+
+
+---
 
 ## 7. Running the Pipeline
 Locally
@@ -125,6 +152,8 @@ gh workflow run ci-security.yml
 
 
 Results appear in the GitHub Security tab and as summarized comments on the pull request.
+
+---
 
 ## 8. Trade-offs and Limitations
 
