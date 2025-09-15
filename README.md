@@ -29,33 +29,8 @@ The implemented pipeline ensures that security checks run automatically on every
 
 ## 4. Architecture Diagram
 
-Developer → Pushes code or creates PR → GitHub Repository
-GitHub Repository → Triggers GitHub Actions CI Pipeline
-
-Inside the CI Pipeline:
-Semgrep SAST → Runs static application security testing
-
-Secrets Scan → Detects hardcoded secrets
-
-Checkov IaC Scan → Scans Infrastructure-as-Code for misconfigurations
-
-Build Container Image → Builds Docker image
-
-Image is scanned by Trivy for vulnerabilities
 
 
-Then:
-Ephemeral Review App is created → OWASP ZAP DAST performs dynamic security testing
-
-Reports:
-
-All results (SAST, IaC, Image Scan, DAST) are sent to a Report Aggregator
-
-Aggregator posts a PR Comment + Summary
-
-Quality Gate / Policy-as-Code checks if build passes or fails
-
-Based on result → Block or Allow merge in GitHub**flowchart TD
     Dev[Developer] -->|Push / PR| GitHub[GitHub Repository]
     GitHub --> Actions[GitHub Actions CI Pipeline]
 
